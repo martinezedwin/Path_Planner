@@ -3,10 +3,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "Eigen-3.3/Eigen/Core"
-#include "Eigen-3.3/Eigen/QR"
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/QR"
 #include "helpers.h"
 #include "json.hpp"
+#include "spline.h"
 
 // for convenience
 using nlohmann::json;
@@ -80,7 +81,7 @@ int main() {
           // Previous path data given to the Planner
           auto previous_path_x = j[1]["previous_path_x"];
           auto previous_path_y = j[1]["previous_path_y"];
-          // Previous path's end s and d values 
+          // Previous path's end s and d values (Target location in s and d values)
           double end_path_s = j[1]["end_path_s"];
           double end_path_d = j[1]["end_path_d"];
 
@@ -97,7 +98,31 @@ int main() {
            * TODO: define a path made up of (x,y) points that the car will visit
            *   sequentially every .02 seconds
            */
+          double dist_inc = 0.4;
+          double lane_width = 4.0; //Width of a lane from 
+          for (int i = 0; i < 50; ++i) {
+            //std::cout<<"Car yaw: "<<car_yaw<<std::endl;
+            double next_s = car_s+(i+1)*dist_inc;
+            double next_d = car_d; //Value of zero would be the double yellow line
 
+            //std::cout<<"Car_S: "<<car_s<<std::endl;
+            //std::cout<<"Car_D: "<<car_d<<std::endl;
+
+            vector<double> xy = getXY(next_s, next_d, map_waypoints_s, map_waypoints_x, map_waypoints_y);
+
+            //next_x_vals.push_back(car_x+(dist_inc*i)*cos(deg2rad(car_yaw))); //Forward x
+            //next_y_vals.push_back(car_y+(dist_inc*i)*sin(deg2rad(car_yaw))); //Lateral y
+
+            next_x_vals.push_back(xy[0]); //Forward s
+            next_y_vals.push_back(xy[1]); //Lateral d
+
+
+            //std::cout<<"Next X : "<<next_x_vals[i]<<std::endl;
+            //std::cout<<"Next Y : "<<next_y_vals[i]<<std::endl;
+
+            //std::cout<<"Car Speed: "<<car_speed<<std::endl;
+
+          }
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
