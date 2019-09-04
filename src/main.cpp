@@ -51,6 +51,10 @@ int main() {
     map_waypoints_dy.push_back(d_y);
   }
 
+  int lane = 1; //lanes from left to right 0,1,2. We start off in middle lane.
+
+  double ref_vel = 49.5; //Refference velocity.
+
   h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,
                &map_waypoints_dx,&map_waypoints_dy]
               (uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
@@ -88,6 +92,8 @@ int main() {
           // Sensor Fusion Data, a list of all other cars on the same side 
           //   of the road.
           auto sensor_fusion = j[1]["sensor_fusion"];
+
+          int previous_x_size = previous_path_x.size(); //How many values previous x has
 
           json msgJson;
 
