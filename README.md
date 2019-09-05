@@ -1,5 +1,5 @@
 # Path Planning Project
-video left at - 31:06
+video left at - 39:25
 
 ## Dependencies
 

@@ -55,13 +55,14 @@ int main() {
 
   double ref_vel = 49.5; //Refference velocity.
 
-  h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,
-               &map_waypoints_dx,&map_waypoints_dy]
+  h.onMessage([&ref_vel, &map_waypoints_x,&map_waypoints_y,&map_waypoints_s,
+               &map_waypoints_dx,&map_waypoints_dy, &lane]
               (uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
+    
     if (length && length > 2 && data[0] == '4' && data[1] == '2') {
 
       auto s = hasData(data);
@@ -211,6 +212,34 @@ int main() {
 
           }
 
+          //Calculate the points needed to go at desired speed
+          double target_x = 30.0;
+          double target_y = s(target_x);
+          double target_dist = sqrt((target_x*target_x)+(target_y*target_y)); //Pythagorean theorem
+
+          double x_add_on = 0;
+
+          for(int j=0; j<=50-previous_path_x.size(); j++){ //Add as many values needed to get back to 50 total points
+            double N = (target_dist/(0.02*ref_vel/2.24));  //Calculate how manny path points are needed to drive at the desired velocity (ref_vel) divide by 2.24 for m/s
+            double x_point = x_add_on + (target_dist/N);  //Add on the x of each N to get the x point
+            double y_point = s(x_point);                  //Correspodning spline value
+
+            x_add_on = x_point;
+
+            double x_ref = x_point;
+            double y_ref = y_point;
+
+            //rotate back to global coordinates
+            x_point = (x_ref*cos(ref_yaw)-y_ref*sin(ref_yaw));
+            y_point = (x_ref*sin(ref_yaw)+y_ref*cos(ref_yaw));
+
+            x_point+=ref_x;
+            y_point+=ref_y;
+
+            next_x_vals.push_back(x_point);
+            next_y_vals.push_back(y_point);
+
+          }
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
