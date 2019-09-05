@@ -53,7 +53,7 @@ int main() {
 
   int lane = 1; //lanes from left to right 0,1,2. We start off in middle lane.
 
-  double ref_vel = 49.5; //Refference velocity.
+  double ref_vel = 0.0; //Refference velocity.
 
   h.onMessage([&ref_vel, &map_waypoints_x,&map_waypoints_y,&map_waypoints_s,
                &map_waypoints_dx,&map_waypoints_dy, &lane]
@@ -133,6 +133,38 @@ int main() {
 
           }
           */
+
+          //Taking into account other vehicles by checking sensor fusion
+          if(previous_x_size > 0){ //If we have previous points
+            car_s = end_path_s;    //Make the s the last point s
+          }
+
+          bool too_close = false;
+
+          //Check every vehicle fusion data
+          for(int i = 0; i< sensor_fusion.size(); i++){
+            float d = sensor_fusion[i][6]; //the i'ths car 6th attribute being d position
+            if(d<(2+4*lane+2) && d > (2+4*lane-2)){ //If the object is within our lane boundaries
+              double vx = sensor_fusion[i][3];       //Grab velocity x in m/s
+              double vy = sensor_fusion[i][4];       //Grab velocity y in m/s
+              double check_speed = sqrt(vx*vx+vy*vy);//Speed
+              double check_car_s = sensor_fusion[i][5];
+
+              check_car_s+=((double)previous_x_size*0.02*check_speed); //project car speed in future
+
+              if((check_car_s > car_s) && ((check_car_s-car_s) < 30)){
+                //ref_vel= 29.5; //mph
+                too_close = true;
+              }
+            }
+          }
+
+          if(too_close){
+            ref_vel -= 0.224;
+          }
+          else if(ref_vel < 49.5){
+            ref_vel += 0.224;
+          }
 
           //Doing path using spline library (Attempt to smooth out the path)
 
@@ -238,8 +270,8 @@ int main() {
 
             next_x_vals.push_back(x_point);
             next_y_vals.push_back(y_point);
-
           }
+
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
