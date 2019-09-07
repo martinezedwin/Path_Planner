@@ -100,7 +100,6 @@ int main() {
 
           vector<double> next_x_vals;
           vector<double> next_y_vals;
-
           /**
            * TODO: define a path made up of (x,y) points that the car will visit
            *   sequentially every .02 seconds
@@ -130,16 +129,19 @@ int main() {
             //std::cout<<"Next Y : "<<next_y_vals[i]<<std::endl;
 
             //std::cout<<"Car Speed: "<<car_speed<<std::endl;
-
           }
           */
 
-          //Taking into account other vehicles by checking sensor fusion
+          //METHOD: Utilizing spline library to create path generation
+
+          //Utilizing previous path points
           if(previous_x_size > 0){ //If we have previous points
             car_s = end_path_s;    //Make the s the last point s
           }
 
           bool too_close = false;
+          bool lane_change_right = false;
+          bool lane_change_left = false;
 
           //Check every vehicle fusion data
           for(int i = 0; i< sensor_fusion.size(); i++){
@@ -155,6 +157,27 @@ int main() {
               if((check_car_s > car_s) && ((check_car_s-car_s) < 30)){
                 //ref_vel= 29.5; //mph
                 too_close = true;
+                //std::cout<<"Car infront!!!!"<<std::endl;
+
+                //if(lane>0){
+                  //lane = 2;
+                  //too_close = false;
+                if(enough space right){
+                  lane_change_right = true;
+                }
+                if(enough space left){
+                  lane_change_left = true;
+                }
+                if(lane_change_right && lane < 2){
+                  std::cout<<"Changing lanees: RIGHT!!!!"<<std::endl;
+                  lane = lane + 1;
+                }
+                if(lane_change_left && lane > 0){
+                  std::cout<<"Changing lanees: RIGHT!!!!"<<std::endl;
+                  lane = lane - 1;
+                }
+                std::cout<<"Current Lane: "<<lane<<std::endl;
+                
               }
             }
           }
