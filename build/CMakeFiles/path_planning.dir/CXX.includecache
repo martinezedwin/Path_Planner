@@ -81,10 +81,10 @@ string
 -
 vector
 -
-eigen3/Eigen/Core
-/home/edwin/Documents/Projects/Path_Planner/src/eigen3/Eigen/Core
-eigen3/Eigen/QR
-/home/edwin/Documents/Projects/Path_Planner/src/eigen3/Eigen/QR
+Eigen/Core
+/home/edwin/Documents/Projects/Path_Planner/src/Eigen/Core
+Eigen/QR
+/home/edwin/Documents/Projects/Path_Planner/src/Eigen/QR
 helpers.h
 /home/edwin/Documents/Projects/Path_Planner/src/helpers.h
 json.hpp

@@ -3,8 +3,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "eigen3/Eigen/Core"
-#include "eigen3/Eigen/QR"
+#include "Eigen/Core"                  //"eigen3/Eigen/Core"
+#include "Eigen/QR"             //"eigen3/Eigen/QR"
 #include "helpers.h"
 #include "json.hpp"
 #include "spline.h"
@@ -159,24 +159,50 @@ int main() {
                 too_close = true;
                 //std::cout<<"Car infront!!!!"<<std::endl;
 
+                //If we have a vehicle ahead, check every vehicles position again
+                for(int j =0; j<sensor_fusion.size(); j++){
+                  float d_sides = sensor_fusion[j][6]; //grab each cars position again
+                  if(d_sides<(2+4*lane-2) && d_sides>(2+4*lane-4) && d_sides>0){ //If the vehicle is on our left lane excluding oncoming traffic
+                    std::cout<<"Vehicle on the LEFT lane!!!!"<<std::endl;
+                    double vx = sensor_fusion[i][3];          //Grab velocity x in m/s
+                    double vy = sensor_fusion[i][4];          //Grab velocity y in m/s
+                    double check_speed_l = sqrt(vx*vx+vy*vy);   //Speed
+                    double check_car_s_l = sensor_fusion[i][5]; //Grab s
+
+                    check_car_s_l+=((double)previous_x_size*0.02*check_speed_l); //project car speed in future
+
+                    if((check_car_s_l-car_s) > 10){
+                      lane = lane - 1;
+                    }
+
+                  }
+                  else if (d_sides>(2+4*lane+2) && d_sides<(2+4*lane+6) && d_sides<12){ //Check right lane
+                    std::cout<<"Vehicle on the RIGHT lane!!!!"<<std::endl;
+                  }
+                }
                 //if(lane>0){
                   //lane = 2;
                   //too_close = false;
+                /*
                 if(enough space right){
                   lane_change_right = true;
                 }
                 if(enough space left){
                   lane_change_left = true;
                 }
+                */
+
+                /*
                 if(lane_change_right && lane < 2){
-                  std::cout<<"Changing lanees: RIGHT!!!!"<<std::endl;
+                  std::cout<<"Changing lanes: RIGHT!!!!"<<std::endl;
                   lane = lane + 1;
                 }
                 if(lane_change_left && lane > 0){
-                  std::cout<<"Changing lanees: RIGHT!!!!"<<std::endl;
+                  std::cout<<"Changing lanes: LEFT!!!!"<<std::endl;
                   lane = lane - 1;
                 }
                 std::cout<<"Current Lane: "<<lane<<std::endl;
+                */
                 
               }
             }
