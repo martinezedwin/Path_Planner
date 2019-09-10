@@ -213,6 +213,12 @@ int main() {
 
           if(too_close){
             ref_vel -= 0.224;
+            if(!vehicle_left && lane>0){
+              lane-=1;
+            }
+            else if(!vehicle_right && lane!=2){
+              lane+=1;
+            }
           }
           else if(ref_vel < 49.5){
             ref_vel += 0.224;
