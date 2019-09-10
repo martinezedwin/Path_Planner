@@ -56,6 +56,20 @@ A video on how it works can be found here:
 
 ## Reflection
 
+The code model for generating paths can be found under src/main.cpp.
+
+In line 138 - 176: 
+It tries to determine where other vehicles are around the ego vehicle. (Infront of us or in the right or left lane)
+It also treis to decide if its safe to change lanes in either the right or left direction.
+
+In line 178 - 189:
+It reacts to what other vehicles are doing
+* If there is vehicle infront, it slows down.
+* If there is a vehicle infront and it is safe to lane change left, it will lane change.
+* If there is a vehicle infront and a vehicle to the left and it is safe to lane change right, it will lane change.
+
+In line 194 - 299:
+It creates a trajectory based on what the vehicle decided to do (slow down, lane change, accelerate, etc.). It does this by initializing a couple of points based on how fast the vehicle should drive (50 mph) and using the spline library to fit a line on those points and following it. It continues to add more points based on the current trajectory to maintain speed required. 
 
 
 
