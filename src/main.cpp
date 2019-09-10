@@ -147,10 +147,10 @@ int main() {
           for(int i = 0; i< sensor_fusion.size(); i++){
             float d = sensor_fusion[i][6]; //the i'ths car 6th attribute being d position
             
-            double vx = sensor_fusion[i][3];       //Grab velocity x in m/s
-            double vy = sensor_fusion[i][4];       //Grab velocity y in m/s
-            double check_speed = sqrt(vx*vx+vy*vy);//Speed
-            double check_car_s = sensor_fusion[i][5];
+            double vx = sensor_fusion[i][3];          //Grab velocity x in m/s
+            double vy = sensor_fusion[i][4];          //Grab velocity y in m/s
+            double check_speed = sqrt(vx*vx+vy*vy);   //Speed
+            double check_car_s = sensor_fusion[i][5]; //Grab s
 
             check_car_s+=((double)previous_x_size*0.02*check_speed); //project car speed in future
             
@@ -173,50 +173,14 @@ int main() {
                 std::cout<<"Car on RIGHT!"<<std::endl;
               }
             }
-
-              /*
-                //If we have a vehicle ahead, check every vehicles position again
-                for(int j =0; j<sensor_fusion.size(); j++){
-                  float d_sides = sensor_fusion[j][6]; //grab each cars position again
-                  if(d_sides<(2+4*lane-2) && d_sides>(2+4*lane-4) && d_sides>0){ //If the vehicle is on our left lane excluding oncoming traffic
-                    //std::cout<<"Vehicle on the LEFT lane!!!!"<<std::endl;
-                    double vx = sensor_fusion[i][3];          //Grab velocity x in m/s
-                    double vy = sensor_fusion[i][4];          //Grab velocity y in m/s
-                    double check_speed_l = sqrt(vx*vx+vy*vy);   //Speed
-                    double check_car_s_l = sensor_fusion[i][5]; //Grab s
-
-                    check_car_s_l+=((double)previous_x_size*0.02*check_speed_l); //project car speed in future
-
-                    if((check_car_s_l-car_s) > 5){
-                      std::cout<<"Changing lanes LEFT"<<std::endl;
-                      lane = lane - 1;
-                    }
-
-                  }
-                  else if (d_sides>(2+4*lane+2) && d_sides<(2+4*lane+6) && d_sides<12){ //Check right lane
-                    //std::cout<<"Vehicle on the RIGHT lane!!!!"<<std::endl;
-                    double vx = sensor_fusion[i][3];          //Grab velocity x in m/s
-                    double vy = sensor_fusion[i][4];          //Grab velocity y in m/s
-                    double check_speed_l = sqrt(vx*vx+vy*vy);   //Speed
-                    double check_car_s_l = sensor_fusion[i][5]; //Grab s
-
-                    check_car_s_l+=((double)previous_x_size*0.02*check_speed_l); //project car speed in future
-
-                    if((check_car_s_l-car_s) > 5){
-                      std::cout<<"Changing lanes RIGHT"<<std::endl;
-                      lane = lane + 1;
-                    }
-                  }
-                }
-              */
           }
 
-          if(too_close){
+          if(too_close){ //If we have a vehicle ahead of in same lane
             ref_vel -= 0.224;
-            if(!vehicle_left && lane>0){
+            if(!vehicle_left && lane>0){ //and there is no vehicles on the left and we are not in lane 0
               lane-=1;
             }
-            else if(!vehicle_right && lane!=2){
+            else if(!vehicle_right && lane!=2){ //or there is no vehicles on the righ and we are not in lane 2
               lane+=1;
             }
           }
@@ -224,7 +188,7 @@ int main() {
             ref_vel += 0.224;
           }
 
-          //Doing path using spline library (Attempt to smooth out the path)
+          //Doing path using spline library 
 
           //Init vector of points that will be used to create the spline
           vector<double> spline_points_x;
