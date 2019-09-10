@@ -139,31 +139,47 @@ int main() {
             car_s = end_path_s;    //Make the s the last point s
           }
 
-          bool too_close = false;
-          bool lane_change_right = false;
-          bool lane_change_left = false;
+          bool too_close = false;     //Ture if we have a vehicle ahead in our lane
+          bool vehicle_left = false;  //True if we have a vehicle to our left
+          bool vehicle_right = false; //True if we have a vehicle to our right
 
           //Check every vehicle fusion data
           for(int i = 0; i< sensor_fusion.size(); i++){
             float d = sensor_fusion[i][6]; //the i'ths car 6th attribute being d position
-            if(d<(2+4*lane+2) && d > (2+4*lane-2)){ //If the object is within our lane boundaries
-              double vx = sensor_fusion[i][3];       //Grab velocity x in m/s
-              double vy = sensor_fusion[i][4];       //Grab velocity y in m/s
-              double check_speed = sqrt(vx*vx+vy*vy);//Speed
-              double check_car_s = sensor_fusion[i][5];
+            
+            double vx = sensor_fusion[i][3];       //Grab velocity x in m/s
+            double vy = sensor_fusion[i][4];       //Grab velocity y in m/s
+            double check_speed = sqrt(vx*vx+vy*vy);//Speed
+            double check_car_s = sensor_fusion[i][5];
 
-              check_car_s+=((double)previous_x_size*0.02*check_speed); //project car speed in future
-
-              if((check_car_s > car_s) && ((check_car_s-car_s) < 30)){
+            check_car_s+=((double)previous_x_size*0.02*check_speed); //project car speed in future
+            
+            if (d<(2+4*lane+2) && d > (2+4*lane-2)){ //If the object is within our lane boundaries
+              if ((check_car_s > car_s) && ((check_car_s-car_s) < 30)){
                 //ref_vel= 29.5; //mph
                 too_close = true;
-                //std::cout<<"Car infront!!!!"<<std::endl;
+                std::cout<<"FRONT!"<<std::endl;
+              }
+            }
+            else if (d<(2+4*lane-2) && d>(2+4*lane-6) && d>0){ //If the object is on left lane
+              if ((check_car_s > car_s-30) && (check_car_s<car_s+30)){
+                vehicle_left = true;
+                std::cout<<"Car on LEFT!"<<std::endl;
+              }
+            }
+            else if (d>(2+4*lane+2) && d<(2+4*lane+6) && d<12){ //If the object is on right lane
+              if ((check_car_s > car_s-30) && (check_car_s<car_s+30)){
+                vehicle_right = true;
+                std::cout<<"Car on RIGHT!"<<std::endl;
+              }
+            }
 
+              /*
                 //If we have a vehicle ahead, check every vehicles position again
                 for(int j =0; j<sensor_fusion.size(); j++){
                   float d_sides = sensor_fusion[j][6]; //grab each cars position again
                   if(d_sides<(2+4*lane-2) && d_sides>(2+4*lane-4) && d_sides>0){ //If the vehicle is on our left lane excluding oncoming traffic
-                    std::cout<<"Vehicle on the LEFT lane!!!!"<<std::endl;
+                    //std::cout<<"Vehicle on the LEFT lane!!!!"<<std::endl;
                     double vx = sensor_fusion[i][3];          //Grab velocity x in m/s
                     double vy = sensor_fusion[i][4];          //Grab velocity y in m/s
                     double check_speed_l = sqrt(vx*vx+vy*vy);   //Speed
@@ -171,41 +187,28 @@ int main() {
 
                     check_car_s_l+=((double)previous_x_size*0.02*check_speed_l); //project car speed in future
 
-                    if((check_car_s_l-car_s) > 10){
+                    if((check_car_s_l-car_s) > 5){
+                      std::cout<<"Changing lanes LEFT"<<std::endl;
                       lane = lane - 1;
                     }
 
                   }
                   else if (d_sides>(2+4*lane+2) && d_sides<(2+4*lane+6) && d_sides<12){ //Check right lane
-                    std::cout<<"Vehicle on the RIGHT lane!!!!"<<std::endl;
+                    //std::cout<<"Vehicle on the RIGHT lane!!!!"<<std::endl;
+                    double vx = sensor_fusion[i][3];          //Grab velocity x in m/s
+                    double vy = sensor_fusion[i][4];          //Grab velocity y in m/s
+                    double check_speed_l = sqrt(vx*vx+vy*vy);   //Speed
+                    double check_car_s_l = sensor_fusion[i][5]; //Grab s
+
+                    check_car_s_l+=((double)previous_x_size*0.02*check_speed_l); //project car speed in future
+
+                    if((check_car_s_l-car_s) > 5){
+                      std::cout<<"Changing lanes RIGHT"<<std::endl;
+                      lane = lane + 1;
+                    }
                   }
                 }
-                //if(lane>0){
-                  //lane = 2;
-                  //too_close = false;
-                /*
-                if(enough space right){
-                  lane_change_right = true;
-                }
-                if(enough space left){
-                  lane_change_left = true;
-                }
-                */
-
-                /*
-                if(lane_change_right && lane < 2){
-                  std::cout<<"Changing lanes: RIGHT!!!!"<<std::endl;
-                  lane = lane + 1;
-                }
-                if(lane_change_left && lane > 0){
-                  std::cout<<"Changing lanes: LEFT!!!!"<<std::endl;
-                  lane = lane - 1;
-                }
-                std::cout<<"Current Lane: "<<lane<<std::endl;
-                */
-                
-              }
-            }
+              */
           }
 
           if(too_close){
